@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.Hosting;
+using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,33 +13,35 @@ namespace Facts
 {
     public class MvcTestServer<TController>
     {
-        private readonly HttpClient _client;
+      
+        private readonly TestServer _server;
 
         public MvcTestServer()
-        {
-            var server = new TestServer(TestServer.CreateBuilder().UseStartup<Startup>());
-            _client = server.CreateClient();
+            : this(_ => {})
+        {            
         }
 
-        public HttpClient GetClient()
+        public MvcTestServer(Action<MvcOptions> configure)
         {
-            return _client;
-        }
-
-        public class Startup
-        {
-            public void ConfigureServices(IServiceCollection services)
-            {
-                services.AddMvc().AddControllersAsServices(new[]
+            _server = new TestServer(TestServer.CreateBuilder().UseStartup(
+                configureApp: app => 
                 {
-                    typeof(TController)
-                });
-            }
-
-            public void Configure(IApplicationBuilder app)
-            {
-                app.UseMvc();
-            }
+                    app.UseMvc();
+                },
+                configureServices: services =>
+                {
+                    services.AddMvc(configure)                    
+                    .AddControllersAsServices(new[]
+                    {
+                        typeof(TController)
+                    });
+                }
+                ));                
         }
+
+        public HttpClient CreateClient()
+        {
+            return _server.CreateClient();                            
+        }          
     }
 }

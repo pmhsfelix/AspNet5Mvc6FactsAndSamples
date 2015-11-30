@@ -16,7 +16,7 @@ namespace Facts
 
         public ParameterBindingTests()
         {
-            _client = new MvcTestServer<ResourcesController>().GetClient();
+            _client = new MvcTestServer<ResourcesController>().CreateClient();
         }
 
         [Fact]
