@@ -1,0 +1,3 @@
+[submodule "vendor/Ahoy"]
+	path = vendor/Ahoy
+	url = https://github.com/domaindrivendev/Ahoy
